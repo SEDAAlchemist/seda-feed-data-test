@@ -1,0 +1,13 @@
+{
+  "name": "seda-feed-explorer-pipeline",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Scheduled data pipeline for the SEDA Composite Feed Explorer. Regenerates data.json from public venue APIs and publishes it to Vercel Blob.",
+  "scripts": {
+    "upload": "node upload_to_blob.mjs data.json data.json"
+  },
+  "dependencies": {
+    "@vercel/blob": "^2.6.1"
+  }
+}
