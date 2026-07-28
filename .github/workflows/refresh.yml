@@ -1,0 +1,39 @@
+name: Refresh feed data
+
+on:
+  schedule:
+    - cron: '0 5,17 * * *'
+  workflow_dispatch: {}
+
+concurrency:
+  group: refresh-data
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check out pipeline
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Generate data.json (queries all venues — this takes several minutes)
+        run: python3 refresh_data.py
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install uploader dependencies
+        run: npm ci || npm install
+
+      - name: Publish snapshot to Vercel Blob
+        env:
+          BLOB_READ_WRITE_TOKEN: ${{ secrets.BLOB_READ_WRITE_TOKEN }}
+        run: node upload_to_blob.mjs data.json data.json
